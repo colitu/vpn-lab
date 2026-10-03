@@ -1,0 +1,7 @@
+# per-lab secrets — never commit
+client-bundle.tgz
+lab.env
+*.key
+*.crt
+summary*.json
+__pycache__/
