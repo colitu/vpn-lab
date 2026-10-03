@@ -78,7 +78,7 @@ You can also play with the network by hand: `sudo bash /opt/colitu-lab/lab-netem
 
 ## Fairness and limits — read this before quoting numbers
 
-- **Congestion control matters a lot.** Inside WireGuard and OpenVPN, your TCP connection is controlled by the *website's* server. With BBR (used by many large sites and tuned servers) TCP shrugs off random loss; with CUBIC (the Linux default) it slows down sharply. VLESS uses the VPN server's TCP stack, Hysteria2 uses its own QUIC congestion control. That's why we run the website both ways (`LAB_CC=cubic` and the host default) and publish both.
+- **Congestion control matters a lot.** Inside WireGuard and OpenVPN, your TCP connection is controlled by the *website's* server. With BBR (used by many large sites and tuned servers) TCP shrugs off random loss; with CUBIC (the Linux default) it slows down sharply. VLESS uses the VPN server's TCP stack, Hysteria2 uses its own QUIC congestion control. In episode #1 the test website used BBR (the host default) — the most forgiving case for TCP inside a tunnel. With CUBIC the tunnel numbers can be lower; run `LAB_CC=cubic` to see it on your own setup.
 - **Loss is random and independent.** Real Wi-Fi and mobile loss often comes in bursts; that can change the ranking.
 - **One route, one pair of servers.** Different distances, CPUs or providers will give different absolute numbers. Compare protocols *within* a run, not against numbers from another setup.
 - **This is not a blocking/censorship test.** Here every protocol is allowed through. How protocols behave when UDP is blocked or traffic is inspected is a separate episode.
@@ -105,9 +105,33 @@ You can also play with the network by hand: `sudo bash /opt/colitu-lab/lab-netem
 
 ## Results
 
-| Episode | Topic | Data |
-|---|---|---|
-| Can It Survive? #1 | Packet loss (0 / 1 / 5 / 10 %) | measurements in progress — added here before the video goes live |
+### Can It Survive? #1 — packet loss
+
+Two servers (Germany ↔ Netherlands, ~36 ms apart), +20 ms each way, 100 Mbit/s cap, random loss in **both** directions. Test website on BBR (host default). Median of 3 runs; page load = median of 60 requests of 100 KB. Raw data: [`results/ep01-packet-loss.jsonl`](results/ep01-packet-loss.jsonl).
+
+**Download speed (Mbit/s) — and how much of its own clean-network speed each kept**
+
+| Loss (each way) | No VPN | WireGuard | OpenVPN | VLESS Reality | Hysteria2 |
+|---|---|---|---|---|---|
+| 0 % | 86.4 | 75.7 | 75.3 | 85.1 | 80.6 |
+| 1 % | 83.8 (97 %) | 36.3 (48 %) | 20.8 (28 %) | 82.9 (97 %) | 77.7 (96 %) |
+| 5 % | 75.8 (88 %) | 11.2 (15 %) | 9.3 (12 %) | 76.4 (90 %) | 73.6 (91 %) |
+| 10 % | 66.3 (77 %) | 2.9 (4 %) | 2.9 (4 %) | 66.8 (78 %) | 37.9 (47 %) |
+
+**Page load, 100 KB (median seconds)**
+
+| Loss (each way) | No VPN | WireGuard | OpenVPN | VLESS Reality | Hysteria2 |
+|---|---|---|---|---|---|
+| 0 % | 0.39 | 0.53 | 0.56 | 0.48 | 0.08 |
+| 1 % | 0.40 | 0.59 | 0.61 | 0.51 | 0.15 |
+| 5 % | 0.52 | 0.65 | 0.72 | 0.67 | 0.16 |
+| 10 % | 0.60 | 0.90 | 1.08 | 0.80 | 0.23 |
+
+Notes:
+
+- Hysteria2's page loads are fast mostly because QUIC keeps one connection open and opens a new stream per request, while the other paths start a fresh TCP connection (and, for VLESS, a fresh Reality handshake) for every request.
+- Failures: one OpenVPN download at 1 % and one VLESS Reality download at 5 % failed to start (counted as 0 Mbit/s; the medians are unaffected). A handful of page requests failed at 1 % and 10 % (see the raw data).
+- Why the tunnels fall so far: WireGuard and OpenVPN don't recover lost packets — the TCP connection inside the tunnel has to. Sampling that connection on the server (`ss -tin`) at 5 % loss showed BBR estimating 14–55 Mbit/s inside the tunnels versus ~96 Mbit/s on the direct path, and 165–179 reordering events inside the tunnels (none on the direct path).
 
 ## About Colitu
 

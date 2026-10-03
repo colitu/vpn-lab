@@ -30,7 +30,7 @@ sudo bash lab-teardown.sh client            # sunucuda: sudo bash lab-teardown.s
 
 ## Sayıları alıntılamadan önce
 
-- **TCP tıkanıklık algoritması sonucu çok etkiler.** WireGuard ve OpenVPN içinde TCP'yi web sitesinin sunucusu yönetir. BBR kayba dayanıklıdır, Linux varsayılanı CUBIC ise kayıpta belirgin şekilde yavaşlar. Bu yüzden siteyi iki şekilde de ölçüp ikisini de yayınlıyoruz.
+- **TCP tıkanıklık algoritması sonucu çok etkiler.** WireGuard ve OpenVPN içinde TCP'yi web sitesinin sunucusu yönetir. BBR kayba dayanıklıdır, Linux varsayılanı CUBIC ise kayıpta belirgin şekilde yavaşlar. 1. bölümde test sitesi BBR kullandı; bu, tünel içindeki TCP için en iyi durum. CUBIC ile tünel sonuçları daha düşük çıkabilir, kendi kurulumunuzda `LAB_CC=cubic` ile deneyebilirsiniz.
 - **Kayıp rastgeledir.** Gerçek Wi-Fi ve mobil ağlarda kayıp çoğu zaman toplu gelir, bu da sıralamayı değiştirebilir.
 - **Tek rota, tek sunucu çifti.** Mutlak sayılar başka kurulumlarda farklı çıkar. Protokolleri aynı test içinde karşılaştırın.
 - **Bu bir engelleme testi değildir.** UDP engellendiğinde ne olduğu ayrı bir bölümün konusu.
