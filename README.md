@@ -59,7 +59,7 @@ You need two Linux servers (Ubuntu 24.04+, root, ~1 GB RAM is enough), ideally i
 
 ```bash
 # 1) on the LAB SERVER — pass the client's public IP
-git clone https://github.com/colitu/colitu-vpn-lab && cd colitu-vpn-lab
+git clone https://github.com/colitu/vpn-lab && cd colitu-vpn-lab
 sudo bash lab-server.sh <client_ip>                 # or: sudo LAB_CC=cubic bash lab-server.sh <client_ip>
 
 # 2) copy /opt/colitu-lab/out/client-bundle.tgz from the server into the repo folder on the CLIENT, then:
