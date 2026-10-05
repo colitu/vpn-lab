@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Shell syntax
+        run: for f in *.sh; do bash -n "$f"; done
+
+      - name: ShellCheck
+        run: shellcheck --severity=error *.sh
+
+      - name: Python syntax
+        run: python3 -m py_compile *.py
